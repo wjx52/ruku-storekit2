@@ -43,20 +43,11 @@ jobs:
           export PATH=$THEOS/bin:$PATH
 
           echo "=== Starting build ==="
-          gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless 2>&1 | tee build.log
-        continue-on-error: true
-
-      - name: Upload Build Log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: build.log
-          if-no-files-found: ignore
+          gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
 
       - name: Upload DEB
         uses: actions/upload-artifact@v4
         with:
           name: ruku-storekit2-deb
           path: packages/*.deb
-          if-no-files-found: warn
+          if-no-files-found: error

@@ -115,7 +115,7 @@ static NewRuKuWindow *_ruKuWindow = nil;
         self.HUDView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
         [targetView addSubview:self.HUDView];
 
-        self.HUD = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        self.HUD = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
         self.HUD.center = self.HUDView.center;
         [self.HUDView addSubview:self.HUD];
         [self.HUD startAnimating];
