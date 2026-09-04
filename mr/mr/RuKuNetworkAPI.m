@@ -99,7 +99,14 @@ static NewRuKuWindow *_ruKuWindow = nil;
 
 - (void)showHUD:(NSString *)message addView:(UIView *)view {
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIView *targetView = view ?: [UIApplication sharedApplication].keyWindow;
+        UIWindow *kw = nil;
+        for (UIWindowScene *scene in [UIApplication sharedApplication].connectedScenes) {
+            if (scene.activationState == UISceneActivationStateForegroundActive) {
+                for (UIWindow *w in scene.windows) { if (w.isKeyWindow) { kw = w; break; } }
+            }
+            if (kw) break;
+        }
+        UIView *targetView = view ?: kw;
         if (!targetView) return;
 
         [self removePlugInHUD];

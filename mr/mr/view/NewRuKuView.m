@@ -110,7 +110,14 @@
                                                                preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil]];
 
-        UIViewController *rootVC = [UIApplication sharedApplication].keyWindow.rootViewController;
+        UIWindow *kw = nil;
+        for (UIWindowScene *scene in [UIApplication sharedApplication].connectedScenes) {
+            if (scene.activationState == UISceneActivationStateForegroundActive) {
+                for (UIWindow *w in scene.windows) { if (w.isKeyWindow) { kw = w; break; } }
+            }
+            if (kw) break;
+        }
+        UIViewController *rootVC = kw.rootViewController;
         [rootVC presentViewController:alert animated:YES completion:nil];
     });
 }

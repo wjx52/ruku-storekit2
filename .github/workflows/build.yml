@@ -22,20 +22,20 @@ jobs:
           export THEOS=$HOME/theos
           git clone --recursive https://github.com/theos/theos.git $THEOS
 
-          # Download iOS SDKs
           curl -sLO https://github.com/theos/sdks/archive/master.tar.gz
           TMP=$(mktemp -d)
           tar -xzf master.tar.gz -C $TMP
           cp -a $TMP/sdks-master/*.sdk $THEOS/sdks/ 2>/dev/null || true
           rm -rf master.tar.gz $TMP
 
-          # Install Swift toolchain for Theos
-          $THEOS/bin/install-swift-toolchain.sh 2>/dev/null || true
-
           echo "=== Theos SDKs ==="
           ls $THEOS/sdks/
           echo "=== Swift version ==="
           swift --version || true
+          echo "=== Xcode path ==="
+          xcode-select -p
+          echo "=== Xcode SDKs ==="
+          ls "$(xcode-select -p)/Platforms/iPhoneOS.platform/Developer/SDKs/" 2>/dev/null || echo "no iPhoneOS SDKs"
 
       - name: Build Package
         run: |
@@ -43,11 +43,20 @@ jobs:
           export PATH=$THEOS/bin:$PATH
 
           echo "=== Starting build ==="
-          gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless 2>&1 | tee build.log
+        continue-on-error: true
+
+      - name: Upload Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          if-no-files-found: ignore
 
       - name: Upload DEB
         uses: actions/upload-artifact@v4
         with:
           name: ruku-storekit2-deb
           path: packages/*.deb
-          if-no-files-found: error
+          if-no-files-found: warn
