@@ -1,5 +1,5 @@
 #import "NewRuKuView.h"
-#import "../StoreKitBridge.h"
+#import "../InsideAppStore.h"
 #import "../RuKuNetworkAPI.h"
 
 @implementation NewRuKuView
@@ -164,30 +164,33 @@
     NSString *productId = item[@"profductId"] ?: item[@"productIdentifier"];
     if (!productId) return;
 
-    // Use the unified bridge — auto SK2 on iOS 15+, SK1 fallback
-    [[StoreKitBridge shared] purchaseProduct:productId uuid:nil completion:^(NSDictionary *info, NSError *error) {
-        if (error) {
-            NSLog(@"[ruku] Purchase failed: %@", error.localizedDescription);
-            [self uploadFailed];
-            return;
-        }
+    // Use InsideAppStore to initiate SK1 purchase
+    // On iOS 15+, Tweak.xm hooks intercept addPayment and route through SK2 automatically
+    InsideAppStore *store = [InsideAppStore manager];
+    store.userfilePatch = self.filePath;
+    store.backMassages = ^(NSDictionary *info) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (info[@"error"]) {
+                NSLog(@"[ruku] Purchase failed: %@", info[@"error"]);
+                [self uploadFailed];
+                return;
+            }
 
-        NSLog(@"[ruku] Purchase success (SK%@): %@", info[@"storeKitVersion"], info[@"transactionIdentifier"]);
+            NSLog(@"[ruku] Purchase success: %@", info[@"transactionIdentifier"]);
 
-        if (self.filePath) {
-            [[StoreKitBridge shared] saveTransactionToLocal:info filePath:self.filePath];
-        }
-
-        if (self.callService) {
-            self.callService();
-        }
-    }];
+            if (self.callService) {
+                self.callService();
+            }
+        });
+    };
+    [store requestProductData:productId];
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     UILabel *header = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, tableView.bounds.size.width, 30)];
+    BOOL sk2Available = (NSClassFromString(@"SimpleStoreKit") != nil);
     header.text = [NSString stringWithFormat:@"  商品列表 (StoreKit %@)",
-                   [[StoreKitBridge shared] useStoreKit2] ? @"2" : @"1"];
+                   sk2Available ? @"2" : @"1"];
     header.font = [UIFont boldSystemFontOfSize:14];
     header.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
     return header;

@@ -6,4 +6,4 @@ Depends: firmware (>= 5.0), mobilesubstrate
 Architecture: iphoneos-arm64
 Name: ruku
 Author: 91
-Description: 入库插件 - 支持 StoreKit 2 (iOS 15+) 兼容 StoreKit 1
+Description: 入库插件 - StoreKit 2 + StoreKit 1 通用版
