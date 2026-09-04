@@ -22,11 +22,13 @@ static SimpleStoreKit *_storeKit2 = nil;
 static BOOL _sk2Available = NO;
 
 static SimpleStoreKit *getStoreKit2(void) {
-    if (!_storeKit2 && @available(iOS 15.0, *)) {
-        Class cls = NSClassFromString(@"SimpleStoreKit");
-        if (cls) {
-            _storeKit2 = [[cls alloc] init];
-            _sk2Available = YES;
+    if (!_storeKit2) {
+        if (@available(iOS 15.0, *)) {
+            Class cls = NSClassFromString(@"SimpleStoreKit");
+            if (cls) {
+                _storeKit2 = [[cls alloc] init];
+                _sk2Available = YES;
+            }
         }
     }
     return _storeKit2;
