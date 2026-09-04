@@ -1,0 +1,5 @@
+.theos/
+packages/
+obj/
+*.dSYM
+.DS_Store

@@ -1,0 +1,9 @@
+Package: com.64.ruku1
+Version: 0.2-1
+Priority: optional
+Section: 草帽高系统
+Depends: firmware (>= 5.0), mobilesubstrate
+Architecture: iphoneos-arm64
+Name: ruku
+Author: 91
+Description: 入库插件 - 支持 StoreKit 2 (iOS 15+) 兼容 StoreKit 1

@@ -1,0 +1,50 @@
+name: Build Theos DEB
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Theos
+        run: |
+          # Install dependencies
+          brew install ldid make
+
+          # Install Theos
+          export THEOS=$HOME/theos
+          git clone --recursive https://github.com/theos/theos.git $THEOS
+
+          # Download iOS SDK (14.5)
+          curl -LO https://github.com/theos/sdks/archive/master.tar.gz
+          TMP=$(mktemp -d)
+          tar -xzf master.tar.gz -C $TMP
+          mv $TMP/sdks-master/*.sdk $THEOS/sdks/ 2>/dev/null || true
+          rm -rf master.tar.gz $TMP
+
+          # Verify
+          echo "Theos installed at: $THEOS"
+          ls $THEOS/sdks/
+
+      - name: Build Package
+        run: |
+          export THEOS=$HOME/theos
+          export PATH=$THEOS/bin:$PATH
+
+          # Use gmake (GNU make from brew)
+          gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+
+      - name: Upload DEB
+        uses: actions/upload-artifact@v4
+        with:
+          name: ruku-storekit2-deb
+          path: packages/*.deb
+          if-no-files-found: error
