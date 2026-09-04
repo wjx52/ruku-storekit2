@@ -1,3 +1,4 @@
+TARGET := iphone:clang:latest:15.0
 INSTALL_TARGET_PROCESSES = SpringBoard
 ARCHS = arm64
 
@@ -18,6 +19,5 @@ mr_FILES = mr/mr/mr.xm \
 mr_CFLAGS = -fobjc-arc
 mr_SWIFTFLAGS = -import-objc-header mr/mr/mr-Bridging-Header.h
 mr_FRAMEWORKS = UIKit Foundation StoreKit Security SystemConfiguration CoreGraphics
-mr_EXTRA_FRAMEWORKS =
 
 include $(THEOS_MAKE_PATH)/tweak.mk
