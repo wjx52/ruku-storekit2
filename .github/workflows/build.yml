@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - name: Checkout
@@ -16,21 +16,18 @@ jobs:
 
       - name: Setup Theos
         run: |
-          # Install dependencies
           brew install ldid make
 
-          # Install Theos
           export THEOS=$HOME/theos
           git clone --recursive https://github.com/theos/theos.git $THEOS
 
-          # Download iOS SDK (14.5)
+          # Download iOS SDKs
           curl -LO https://github.com/theos/sdks/archive/master.tar.gz
           TMP=$(mktemp -d)
           tar -xzf master.tar.gz -C $TMP
-          mv $TMP/sdks-master/*.sdk $THEOS/sdks/ 2>/dev/null || true
+          cp -a $TMP/sdks-master/*.sdk $THEOS/sdks/ 2>/dev/null || true
           rm -rf master.tar.gz $TMP
 
-          # Verify
           echo "Theos installed at: $THEOS"
           ls $THEOS/sdks/
 
@@ -39,8 +36,11 @@ jobs:
           export THEOS=$HOME/theos
           export PATH=$THEOS/bin:$PATH
 
-          # Use gmake (GNU make from brew)
-          gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless 2>&1 || {
+            echo "=== Build failed, showing details ==="
+            gmake messages=yes 2>&1 || true
+            exit 1
+          }
 
       - name: Upload DEB
         uses: actions/upload-artifact@v4

@@ -21,6 +21,3 @@ mr_FRAMEWORKS = UIKit Foundation StoreKit Security SystemConfiguration CoreGraph
 mr_EXTRA_FRAMEWORKS =
 
 include $(THEOS_MAKE_PATH)/tweak.mk
-
-SUBPROJECTS += ruku
-include $(THEOS_MAKE_PATH)/aggregate.mk
